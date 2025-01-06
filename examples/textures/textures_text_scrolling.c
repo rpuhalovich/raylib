@@ -2,7 +2,7 @@
 #include "raylib.h"
 #include "raymath.h"
 
-char* text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum";
+char* text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit,sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum";
 char* tqbf = "The quick brown fox jumps over the lazy dog.";
 
 int main(void)
@@ -14,37 +14,47 @@ int main(void)
     InitWindow(screenWidth, screenHeight, "texture scrolling");
     SetTargetFPS(60);
 
-    float maxSpeed = 10.0f;
-    float curspeedx = 0.0f;
-    float scrolloffx = 0.0f;
+    int fontsize = 64;
+    Font font = LoadFontEx("resources/JetBrainsMono.ttf", fontsize, 0, 0);
 
-    Font font = LoadFontEx("resources/JetBrainsMono.ttf", 64, 0, 0);
-    Image img = GenImageColor(1000, 2000, RAYWHITE);
-    ImageDrawTextEx(&img, font, tqbf, (Vector2){ 20.0f, 20.0f }, (float)font.baseSize, 0.0f, BLACK);
+    Image img = GenImageColor(2000, 100, GRAY);
+    ImageDrawTextEx(&img, font, tqbf, (Vector2){ 0.0f, 0.0f }, (float)font.baseSize, 0.0f, BLACK);
 
     Texture2D texture = LoadTextureFromImage(img);
     UnloadImage(img);
 
+    float scrolloffx = 0.0f;
     while (!WindowShouldClose()) {
         // core
         {
             float dt = GetFrameTime();
             float scrollAmount = 3.0f;
-            scrolloffx = fmax(0.0f, scrolloffx + GetMouseWheelMove());
+            scrolloffx = fmax(0.0f, scrolloffx + GetMouseWheelMove() * 8.0f);
         }
 
         // draw
         {
             BeginDrawing();
+            ClearBackground(RAYWHITE);
 
-                ClearBackground(RAYWHITE);
-                DrawTexturePro(
-                    texture,
-                    (Rectangle){ scrolloffx, 0, 100, 100 },
-                    (Rectangle){ 10, screenHeight / 2 - 100, 100, 100 },
-                    (Vector2){ 0, 0 },
-                    0.0f,
-                    WHITE);
+            float recwidth = 1000.0f;
+            float recheight = 100.0f;
+            Rectangle bgrec = (Rectangle){ 0, 0, recwidth, recheight };
+
+            Rectangle centeredrec = (Rectangle){
+                screenWidth / 2 - recwidth / 2,
+                screenHeight / 2 - recheight / 2,
+                recwidth,
+                recheight };
+
+            DrawRectangleRec(centeredrec, GRAY);
+            DrawTexturePro(
+                texture,
+                (Rectangle){ scrolloffx, 0, recwidth, recheight },
+                centeredrec,
+                (Vector2){ 0, 0 },
+                0.0f,
+                WHITE);
 
             EndDrawing();
         }
