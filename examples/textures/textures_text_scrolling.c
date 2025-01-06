@@ -1,0 +1,56 @@
+#include <stdio.h>
+#include "raylib.h"
+#include "raymath.h"
+
+char* text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum";
+char* tqbf = "The quick brown fox jumps over the lazy dog.";
+
+int main(void)
+{
+    const int screenWidth = 1280;
+    const int screenHeight = 720;
+
+    SetConfigFlags(FLAG_WINDOW_RESIZABLE | FLAG_WINDOW_HIGHDPI | FLAG_MSAA_4X_HINT);
+    InitWindow(screenWidth, screenHeight, "texture scrolling");
+    SetTargetFPS(60);
+
+    float maxSpeed = 10.0f;
+    float curspeedx = 0.0f;
+    float scrolloffx = 0.0f;
+
+    Font font = LoadFontEx("resources/JetBrainsMono.ttf", 64, 0, 0);
+    Image img = GenImageColor(1000, 2000, RAYWHITE);
+    ImageDrawTextEx(&img, font, tqbf, (Vector2){ 20.0f, 20.0f }, (float)font.baseSize, 0.0f, BLACK);
+
+    Texture2D texture = LoadTextureFromImage(img);
+    UnloadImage(img);
+
+    while (!WindowShouldClose()) {
+        // core
+        {
+            float dt = GetFrameTime();
+            float scrollAmount = 3.0f;
+            scrolloffx = fmax(0.0f, scrolloffx + GetMouseWheelMove());
+        }
+
+        // draw
+        {
+            BeginDrawing();
+
+                ClearBackground(RAYWHITE);
+                DrawTexturePro(
+                    texture,
+                    (Rectangle){ scrolloffx, 0, 100, 100 },
+                    (Rectangle){ 10, screenHeight / 2 - 100, 100, 100 },
+                    (Vector2){ 0, 0 },
+                    0.0f,
+                    WHITE);
+
+            EndDrawing();
+        }
+    }
+
+    UnloadFont(font);
+    CloseWindow();
+    return 0;
+}

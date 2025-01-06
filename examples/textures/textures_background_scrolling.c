@@ -31,6 +31,8 @@ int main(void)
             if (!IsKeyDown(KEY_RIGHT))
                 curspeedx = fmax(0.0f, curspeedx - acceleration * dt);
 
+            scrolloffx += GetMouseWheelMove();
+
             printf("%f\n", curspeedx);
             scrolloffx += curspeedx;
 
