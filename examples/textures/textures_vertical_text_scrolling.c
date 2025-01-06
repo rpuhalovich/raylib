@@ -44,9 +44,9 @@ int main(void)
     float imageRecWidth = textRecWidth + 1000.0f;
     float imageRecHeight = textRecHeight + 800.0f;
     float displayRecWidth = 1000.0f;
-    float displayRecHeight = 800.0f;
+    float displayRecHeight = 400.0f;
 
-    Image img = GenImageColor(imageRecWidth, imageRecHeight, RAYWHITE);
+    Image img = GenImageColor(imageRecWidth, imageRecHeight, GRAY);
     ImageDrawTextEx(&img, font, lorem1, (Vector2){ 0.0f, 0.0f }, (float)font.baseSize, 0.0f, BLACK);
     ImageDrawTextEx(&img, font, lorem2, (Vector2){ 0.0f, sizing.y }, (float)font.baseSize, 0.0f, BLACK);
     ImageDrawTextEx(&img, font, lorem3, (Vector2){ 0.0f, sizing.y * 2 }, (float)font.baseSize, 0.0f, BLACK);
@@ -62,18 +62,18 @@ int main(void)
         // core
         {
             if (IsKeyDown(KEY_UP))
-                scrolloffy -= scrollAmount;
-            if (IsKeyDown(KEY_DOWN))
                 scrolloffy += scrollAmount;
-
-            // scrolloffy = fmax(0.0f, fmin(fmax(recheight, sizing.y * 3), scrolloffy));
+            if (IsKeyDown(KEY_DOWN))
+                scrolloffy -= scrollAmount;
+            scrolloffy = fmin(textRecHeight, scrolloffy);
 
             if (IsKeyDown(KEY_LEFT))
-                scrolloffx -= scrollAmount;
-            if (IsKeyDown(KEY_RIGHT))
                 scrolloffx += scrollAmount;
+            if (IsKeyDown(KEY_RIGHT))
+                scrolloffx -= scrollAmount;
+            scrolloffx = fmin(textRecWidth, scrolloffx);
 
-            // scrolloffx = fmax(0.0f, fmin(sizing.x, scrolloffx));
+            printf("scrolloffx: %f, scrolloffy: %f\n", scrolloffx, scrolloffy);
         }
 
         // draw
@@ -99,7 +99,6 @@ int main(void)
             // Rectangle sourceRec = { 0.0f, 0.0f, (float)target.texture.width, -(float)target.texture.height };
             // Rectangle destRec = { -virtualRatio, -virtualRatio, screenWidth + (virtualRatio*2), screenHeight + (virtualRatio*2) };
 
-            DrawRectangleRec(source, GRAY);
             DrawTexturePro(
                 texture,
                 dest,

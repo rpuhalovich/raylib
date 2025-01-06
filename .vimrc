@@ -1,1 +1,1 @@
-set makeprg=cmake\ --build\ build
+set makeprg=clear\ &&\ cmake\ --build\ build
