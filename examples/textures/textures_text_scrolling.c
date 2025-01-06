@@ -25,7 +25,7 @@ int main(void)
     InitWindow(screenWidth, screenHeight, "texture scrolling");
     SetTargetFPS(60);
 
-    char* text = tqbf;
+    char* text = lorem;
 
     float fontsize = 64.0f;
     Font font = LoadFontEx("resources/JetBrainsMono.ttf", (int)fontsize, 0, 0);
