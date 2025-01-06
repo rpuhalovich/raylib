@@ -13,9 +13,12 @@
 #include "raylib.h"
 #include "raymath.h"
 
-char* lorem1 = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor";
-char* lorem2 = "incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis";
-char* lorem3 = "nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.";
+// char* lorem1 = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor";
+// char* lorem2 = "incididunt ut labore et";
+// char* lorem3 = "nostrud exercitation ullamco laboris ut aliquip";
+char* lorem1 = "Lorem";
+char* lorem2 = "inci";
+char* lorem3 = "no";
 char* lorem4 = "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu";
 char* lorem5 = "fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in";
 char* lorem6 = "culpa qui officia deserunt mollit anim id est laborum";
@@ -36,40 +39,41 @@ int main(void)
     Font font = LoadFontEx("resources/JetBrainsMono.ttf", (int)fontsize, 0, 0);
     Vector2 sizing = MeasureTextEx(font, lorem1, fontsize, 1.0f);
 
-    float recwidth = 1000.0f;
-    float recheight = sizing.y * rows;
+    float textRecWidth = sizing.x;
+    float textRecHeight = sizing.y * rows;
+    float imageRecWidth = textRecWidth + 1000.0f;
+    float imageRecHeight = textRecHeight + 800.0f;
+    float displayRecWidth = 1000.0f;
+    float displayRecHeight = 800.0f;
 
-    Image img = GenImageColor(recwidth, recheight, GRAY);
-    ImageDrawTextEx(&img, font, "Hello there", (Vector2){ 0.0f, 0.0f }, (float)font.baseSize, 0.0f, BLACK);
-    ImageDrawTextEx(&img, font, "Foo bar", (Vector2){ 0.0f, sizing.y }, (float)font.baseSize, 0.0f, BLACK);
-    ImageDrawTextEx(&img, font, "This is a test", (Vector2){ 0.0f, sizing.y * 2 }, (float)font.baseSize, 0.0f, BLACK);
-
+    Image img = GenImageColor(imageRecWidth, imageRecHeight, RAYWHITE);
+    ImageDrawTextEx(&img, font, lorem1, (Vector2){ 0.0f, 0.0f }, (float)font.baseSize, 0.0f, BLACK);
+    ImageDrawTextEx(&img, font, lorem2, (Vector2){ 0.0f, sizing.y }, (float)font.baseSize, 0.0f, BLACK);
+    ImageDrawTextEx(&img, font, lorem3, (Vector2){ 0.0f, sizing.y * 2 }, (float)font.baseSize, 0.0f, BLACK);
     Texture2D texture = LoadTextureFromImage(img);
     UnloadImage(img);
 
     float scrollAmount = 10.0f;
-
     float scrolloffx = 0.0f;
     float scrolloffy = 0.0f;
     while (!WindowShouldClose()) {
-        float recwidth = 1000.0f;
-        float recheight = sizing.y * rows;
         float dt = GetFrameTime();
 
         // core
         {
-            // scrolloffy = fmax(0.0f, scrolloffy + GetMouseWheelMove() * 256.0f * dt);
-            // scrolloffy = fmin(sizing.y - recwidth, scrolloffy);
-
             if (IsKeyDown(KEY_UP))
                 scrolloffy -= scrollAmount;
             if (IsKeyDown(KEY_DOWN))
                 scrolloffy += scrollAmount;
 
+            // scrolloffy = fmax(0.0f, fmin(fmax(recheight, sizing.y * 3), scrolloffy));
+
             if (IsKeyDown(KEY_LEFT))
                 scrolloffx -= scrollAmount;
             if (IsKeyDown(KEY_RIGHT))
                 scrolloffx += scrollAmount;
+
+            // scrolloffx = fmax(0.0f, fmin(sizing.x, scrolloffx));
         }
 
         // draw
@@ -77,19 +81,29 @@ int main(void)
             BeginDrawing();
             ClearBackground(RAYWHITE);
 
-            Rectangle bgrec = (Rectangle){ 0, 0, recwidth, recheight };
+            // source - the actual screen layout of the texture
+            Rectangle source = (Rectangle){
+                screenWidth / 2 - displayRecWidth / 2,
+                screenHeight / 2 - displayRecHeight / 2,
+                displayRecWidth,
+                displayRecHeight };
 
-            Rectangle centeredrec = (Rectangle){
-                screenWidth / 2 - recwidth / 2,
-                screenHeight / 2 - recheight / 2,
-                recwidth,
-                recheight };
+            // dest - the offset and scaling of the texture
+            Rectangle dest = (Rectangle){
+                scrolloffx,
+                scrolloffy,
+                displayRecWidth,
+                displayRecHeight };
 
-            DrawRectangleRec(centeredrec, GRAY);
+            // e.g. from core_smooth_pixelperfect.c
+            // Rectangle sourceRec = { 0.0f, 0.0f, (float)target.texture.width, -(float)target.texture.height };
+            // Rectangle destRec = { -virtualRatio, -virtualRatio, screenWidth + (virtualRatio*2), screenHeight + (virtualRatio*2) };
+
+            DrawRectangleRec(source, GRAY);
             DrawTexturePro(
                 texture,
-                (Rectangle){ scrolloffx, scrolloffy, recwidth, recheight },
-                centeredrec,
+                dest,
+                source,
                 (Vector2){ 0, 0 },
                 0.0f,
                 WHITE);
