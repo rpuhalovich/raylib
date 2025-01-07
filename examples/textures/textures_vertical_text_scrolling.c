@@ -72,36 +72,36 @@ int main(void)
 
     float fontsize = 64.0f;
     Font font = LoadFontEx("resources/JetBrainsMono.ttf", (int)fontsize, 0, 0);
-    Vector2 sizing = MeasureTextEx(font, shake[13], fontsize, 1.0f);
 
-    float textRecWidth = sizing.x;
-    float textRecHeight = sizing.y * shakeRows;
-    float imageRecWidth = textRecWidth + 1000.0f;
-    float imageRecHeight = textRecHeight + 800.0f;
-    float displayRecWidth = 1000.0f;
-    float displayRecHeight = 400.0f;
+    RenderTexture2D textRenderTexture = LoadRenderTexture(1000, 1000);
 
-    Image img = GenImageColor(imageRecWidth, imageRecHeight, GRAY);
-    ImageDrawRectangleRec(&img, (Rectangle) { 0.0f, 0.0f, imageRecWidth, imageRecHeight }, RED);
-
-    for (int i = 0; i < shakeRows; i++)
-        ImageDrawTextEx(&img, font, shake[i], (Vector2){ 0.0f, sizing.y * i }, (float)font.baseSize, 0.0f, BLACK);
-
-    Texture2D texture = LoadTextureFromImage(img);
-    UnloadImage(img);
-
+    bool showShake = false;
     float scrollAmount = 10.0f;
     float scrolloffx = 0.0f;
     float scrolloffy = 0.0f;
     while (!WindowShouldClose()) {
         float dt = GetFrameTime();
 
+        Vector2 sizing;
+        if (showShake) {
+            sizing = MeasureTextEx(font, shake[13], fontsize, 1.0f);
+        } else {
+            sizing = MeasureTextEx(font, lorem[0], fontsize, 1.0f);
+        }
+
+        float textRecWidth = sizing.x;
+        float textRecHeight = sizing.y * shakeRows;
+        float imageRecWidth = textRecWidth + 1000.0f;
+        float imageRecHeight = textRecHeight + 800.0f;
+        float displayRecWidth = 1000.0f;
+        float displayRecHeight = 400.0f;
+
         // core
         {
             if (IsKeyDown(KEY_UP))
-                scrolloffy -= scrollAmount;
-            if (IsKeyDown(KEY_DOWN))
                 scrolloffy += scrollAmount;
+            if (IsKeyDown(KEY_DOWN))
+                scrolloffy -= scrollAmount;
             scrolloffy = clamp(scrolloffy, 0.0f, textRecHeight);
 
             if (IsKeyDown(KEY_LEFT))
@@ -110,49 +110,71 @@ int main(void)
                 scrolloffx += scrollAmount;
             scrolloffx = clamp(scrolloffx, 0.0f, textRecWidth);
 
-            // printf("scrolloffx: %f, scrolloffy: %f\n", scrolloffx, scrolloffy);
+            if (IsKeyPressed(KEY_SPACE))
+                showShake = !showShake;
         }
 
         // draw
         {
             BeginDrawing();
-            ClearBackground(RAYWHITE);
+                ClearBackground(RAYWHITE);
 
-            // source - the actual screen layout of the texture
-            Rectangle source = (Rectangle){
-                screenWidth / 2 - displayRecWidth / 2,
-                screenHeight / 2 - displayRecHeight / 2,
-                displayRecWidth,
-                displayRecHeight };
+                // source - the actual screen layout of the texture
+                Rectangle source = (Rectangle){
+                    screenWidth / 2 - displayRecWidth / 2,
+                    screenHeight / 2 - displayRecHeight / 2,
+                    displayRecWidth,
+                    -displayRecHeight };
 
-            // dest - the offset and scaling of the texture
-            Rectangle dest = (Rectangle){
-                scrolloffx,
-                scrolloffy,
-                displayRecWidth,
-                displayRecHeight };
+                // dest - the offset and scaling of the texture
+                Rectangle dest = (Rectangle){
+                    scrolloffx,
+                    scrolloffy - displayRecHeight,
+                    displayRecWidth,
+                    -displayRecHeight };
 
-            // e.g. from core_smooth_pixelperfect.c
-            // Rectangle sourceRec = { 0.0f, 0.0f, (float)target.texture.width, -(float)target.texture.height };
-            // Rectangle destRec = { -virtualRatio, -virtualRatio, screenWidth + (virtualRatio*2), screenHeight + (virtualRatio*2) };
+                BeginTextureMode(textRenderTexture);
+                    ClearBackground(BLANK);
+                    if (showShake) {
+                        for (int i = 0; i < shakeRows; i++) {
+                            DrawTextEx(
+                                font,
+                                shake[i],
+                                (Vector2){ 0.0f, sizing.y * i },
+                                (float)font.baseSize,
+                                0.0f,
+                                BLACK);
+                        }
+                    } else {
+                        for (int i = 0; i < rows; i++) {
+                            DrawTextEx(
+                                font,
+                                lorem[i],
+                                (Vector2){ 0.0f, sizing.y * i },
+                                (float)font.baseSize,
+                                0.0f,
+                                BLACK);
+                        }
+                    }
+                EndTextureMode();
 
-            DrawTexturePro(
-                texture,
-                dest,
-                source,
-                (Vector2){ 0, 0 },
-                0.0f,
-                WHITE);
+                DrawTexturePro(
+                    textRenderTexture.texture,
+                    dest,
+                    source,
+                    (Vector2){ 0, 0 },
+                    0.0f,
+                    WHITE);
 
-            char str[128];
-            sprintf(str, "scrolloffx: %.2f, scrolloffy: %.2f", scrolloffx, scrolloffy);
-            DrawText(str, 16.0f, 16.0f, 32.0f, BLACK);
+                char str[128];
+                sprintf(str, "scrolloffx: %.2f, scrolloffy: %.2f", scrolloffx, scrolloffy);
+                DrawText(str, 16.0f, 16.0f, 32.0f, BLACK);
 
             EndDrawing();
         }
     }
 
-    UnloadTexture(texture);
+    UnloadRenderTexture(textRenderTexture);
     UnloadFont(font);
     CloseWindow();
     return 0;
