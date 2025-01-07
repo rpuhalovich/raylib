@@ -9,6 +9,20 @@
 *
 ********************************************************************************************/
 
+/*
+TODO:
+    - [ ] use a RenderTexture2D to render text to a texture as it's more effecient?
+        - [ ] see textures_fog_of_war.c for an example of this
+
+```c
+BeginTextureMode(fogOfWar);
+    ClearBackground(BLANK);
+
+    // use regular draw commands...
+EndTextureMode();
+```
+*/
+
 #include <stdio.h>
 #include "raylib.h"
 #include "raymath.h"
