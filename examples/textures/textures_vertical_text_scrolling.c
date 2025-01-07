@@ -41,7 +41,7 @@ int main(void)
     Vector2 sizing = MeasureTextEx(font, lorem1, fontsize, 1.0f);
 
     float textRecWidth = sizing.x;
-    float textRecHeight = sizing.y * (rows - 1);
+    float textRecHeight = sizing.y * rows;
     float imageRecWidth = textRecWidth + 1000.0f;
     float imageRecHeight = textRecHeight + 800.0f;
     float displayRecWidth = 1000.0f;
@@ -78,7 +78,7 @@ int main(void)
                 scrolloffx -= scrollAmount;
             if (IsKeyDown(KEY_RIGHT))
                 scrolloffx += scrollAmount;
-            scrolloffx = clamp(scrolloffx, 0.0f, textRecWidth - displayRecWidth);
+            scrolloffx = clamp(scrolloffx, 0.0f, textRecWidth);
 
             printf("scrolloffx: %f, scrolloffy: %f\n", scrolloffx, scrolloffy);
         }
