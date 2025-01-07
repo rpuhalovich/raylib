@@ -13,13 +13,34 @@
 #include "raylib.h"
 #include "raymath.h"
 
-char* lorem1 = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor";
-char* lorem2 = "incididunt ut labore et";
-char* lorem3 = "nostrud exercitation ullamco laboris ut aliquip";
-char* lorem4 = "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu";
-char* lorem5 = "fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in";
-char* lorem6 = "culpa qui officia deserunt mollit anim id est laborum";
-char* lorem7 = "foo bar baz";
+int rows = 7;
+char* lorem[] = {
+    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor",
+    "incididunt ut labore et",
+    "nostrud exercitation ullamco laboris ut aliquip",
+    "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu",
+    "fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in",
+    "culpa qui officia deserunt mollit anim id est laborum",
+    "foo bar baz"
+};
+
+int shakeRows = 14;
+char* shake[] = {
+    "Over hill, over dale,",
+    "Thorough bush, thorough brier,",
+    "Over park, over pale,",
+    "Thorough flood, thorough fire!",
+    "I do wander everywhere,",
+    "Swifter than the moon's sphere;",
+    "And I serve the Fairy Queen,",
+    "To dew her orbs upon the green;",
+    "The cowslips tall her pensioners be;",
+    "In their gold coats spots you see;",
+    "Those be rubies, fairy favours;",
+    "In those freckles live their savours;",
+    "I must go seek some dewdrops here,",
+    "And hang a pearl in every cowslip's ear."
+};
 
 float clamp(float v, float min, float max)
 {
@@ -35,27 +56,23 @@ int main(void)
     InitWindow(screenWidth, screenHeight, "texture scrolling");
     SetTargetFPS(60);
 
-    int rows = 7;
     float fontsize = 64.0f;
     Font font = LoadFontEx("resources/JetBrainsMono.ttf", (int)fontsize, 0, 0);
-    Vector2 sizing = MeasureTextEx(font, lorem1, fontsize, 1.0f);
+    Vector2 sizing = MeasureTextEx(font, shake[13], fontsize, 1.0f);
 
     float textRecWidth = sizing.x;
-    float textRecHeight = sizing.y * rows;
+    float textRecHeight = sizing.y * shakeRows;
     float imageRecWidth = textRecWidth + 1000.0f;
     float imageRecHeight = textRecHeight + 800.0f;
     float displayRecWidth = 1000.0f;
     float displayRecHeight = 400.0f;
 
     Image img = GenImageColor(imageRecWidth, imageRecHeight, GRAY);
-    ImageDrawRectangleRec(&img, (Rectangle) { 0.0f, 0.0f, textRecWidth, textRecHeight }, RED);
-    ImageDrawTextEx(&img, font, lorem1, (Vector2){ 0.0f, 0.0f }, (float)font.baseSize, 0.0f, BLACK);
-    ImageDrawTextEx(&img, font, lorem2, (Vector2){ 0.0f, sizing.y }, (float)font.baseSize, 0.0f, BLACK);
-    ImageDrawTextEx(&img, font, lorem3, (Vector2){ 0.0f, sizing.y * 2 }, (float)font.baseSize, 0.0f, BLACK);
-    ImageDrawTextEx(&img, font, lorem4, (Vector2){ 0.0f, sizing.y * 3 }, (float)font.baseSize, 0.0f, BLACK);
-    ImageDrawTextEx(&img, font, lorem5, (Vector2){ 0.0f, sizing.y * 4 }, (float)font.baseSize, 0.0f, BLACK);
-    ImageDrawTextEx(&img, font, lorem6, (Vector2){ 0.0f, sizing.y * 5 }, (float)font.baseSize, 0.0f, BLACK);
-    ImageDrawTextEx(&img, font, lorem7, (Vector2){ 0.0f, sizing.y * 6 }, (float)font.baseSize, 0.0f, BLACK);
+    ImageDrawRectangleRec(&img, (Rectangle) { 0.0f, 0.0f, imageRecWidth, imageRecHeight }, RED);
+
+    for (int i = 0; i < shakeRows; i++)
+        ImageDrawTextEx(&img, font, shake[i], (Vector2){ 0.0f, sizing.y * i }, (float)font.baseSize, 0.0f, BLACK);
+
     Texture2D texture = LoadTextureFromImage(img);
     UnloadImage(img);
 
@@ -68,10 +85,9 @@ int main(void)
         // core
         {
             if (IsKeyDown(KEY_UP))
-                scrolloffy += scrollAmount;
-            if (IsKeyDown(KEY_DOWN))
                 scrolloffy -= scrollAmount;
-            // scrolloffy = fmin(0.0f, scrolloffy);
+            if (IsKeyDown(KEY_DOWN))
+                scrolloffy += scrollAmount;
             scrolloffy = clamp(scrolloffy, 0.0f, textRecHeight);
 
             if (IsKeyDown(KEY_LEFT))
@@ -80,7 +96,7 @@ int main(void)
                 scrolloffx += scrollAmount;
             scrolloffx = clamp(scrolloffx, 0.0f, textRecWidth);
 
-            printf("scrolloffx: %f, scrolloffy: %f\n", scrolloffx, scrolloffy);
+            // printf("scrolloffx: %f, scrolloffy: %f\n", scrolloffx, scrolloffy);
         }
 
         // draw
@@ -113,6 +129,10 @@ int main(void)
                 (Vector2){ 0, 0 },
                 0.0f,
                 WHITE);
+
+            char str[128];
+            sprintf(str, "scrolloffx: %.2f, scrolloffy: %.2f", scrolloffx, scrolloffy);
+            DrawText(str, 16.0f, 16.0f, 32.0f, BLACK);
 
             EndDrawing();
         }
