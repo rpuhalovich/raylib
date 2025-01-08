@@ -73,7 +73,7 @@ int main(void)
     float fontsize = 64.0f;
     Font font = LoadFontEx("resources/JetBrainsMono.ttf", (int)fontsize, 0, 0);
 
-    RenderTexture2D textRenderTexture = LoadRenderTexture(1000, 1000);
+    RenderTexture2D textRenderTexture = LoadRenderTexture(8000, 8000);
 
     bool showShake = false;
     float scrollAmount = 10.0f;
@@ -99,9 +99,9 @@ int main(void)
         // core
         {
             if (IsKeyDown(KEY_UP))
-                scrolloffy += scrollAmount;
-            if (IsKeyDown(KEY_DOWN))
                 scrolloffy -= scrollAmount;
+            if (IsKeyDown(KEY_DOWN))
+                scrolloffy += scrollAmount;
             scrolloffy = clamp(scrolloffy, 0.0f, textRecHeight);
 
             if (IsKeyDown(KEY_LEFT))
@@ -129,7 +129,7 @@ int main(void)
                 // dest - the offset and scaling of the texture
                 Rectangle dest = (Rectangle){
                     scrolloffx,
-                    scrolloffy - displayRecHeight,
+                    -(scrolloffy + displayRecHeight),
                     displayRecWidth,
                     -displayRecHeight };
 
