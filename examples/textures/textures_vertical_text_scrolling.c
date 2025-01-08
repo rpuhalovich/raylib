@@ -167,7 +167,7 @@ int main(void)
                     WHITE);
 
                 char str[128];
-                sprintf(str, "scrolloffx: %.2f, scrolloffy: %.2f", scrolloffx, scrolloffy);
+                sprintf(str, "scrolloffx: %.2f, scrolloffy: %.2f, fps: %d", scrolloffx, scrolloffy, GetFPS());
                 DrawText(str, 16.0f, 16.0f, 32.0f, BLACK);
 
             EndDrawing();
